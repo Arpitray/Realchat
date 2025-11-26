@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { pusherClient } from "@/lib/pusher-client";
@@ -36,10 +36,13 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null);
   const [elements, setElements] = useState<any[]>(initialElements);
   const [mounted, setMounted] = useState(false);
+  const isRemoteUpdate = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 
   // Handle incoming updates from Pusher
   useEffect(() => {
@@ -51,6 +54,7 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
         // This is a naive check, ideally we check version/ids
         const currentElements = excalidrawAPI.getSceneElements();
         if (JSON.stringify(currentElements) !== JSON.stringify(data.elements)) {
+             isRemoteUpdate.current = true;
              excalidrawAPI.updateScene({ elements: data.elements });
         }
       }
@@ -62,14 +66,17 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   }, [roomId, excalidrawAPI]);
 
   const saveToDb = async (elements: any[]) => {
+    setSaveStatus("saving");
     try {
       await fetch(`/api/whiteboard/${roomId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ elements }),
       });
+      setSaveStatus("saved");
     } catch (error) {
       console.error("Failed to save whiteboard:", error);
+      setSaveStatus("error");
     }
   };
 
@@ -79,6 +86,10 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   );
 
   const onChange = (elements: readonly any[], appState: any, files: any) => {
+    if (isRemoteUpdate.current) {
+      isRemoteUpdate.current = false;
+      return;
+    }
     // We only want to save if there are changes
     // Excalidraw calls onChange frequently
     debouncedSave(elements);
@@ -95,7 +106,18 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
           Back to Chat
         </button>
       </div>
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-4">
+        <div className="bg-zinc-900/50 mt-11 backdrop-blur-md rounded-full border border-white/10 shadow-lg px-3 py-1.5">
+          <span className={`text-xs font-medium ${
+            saveStatus === "saving" ? "text-yellow-500" : 
+            saveStatus === "error" ? "text-red-500" : 
+            "text-green-500"
+          }`}>
+            {saveStatus === "saving" ? "Saving..." : 
+             saveStatus === "error" ? "Error" : 
+             "Saved"}
+          </span>
+        </div>
         <div className="bg-zinc-900/50 mt-11 mr-6 backdrop-blur-md rounded-full border border-white/10 shadow-lg">
           <ThemeToggle />
         </div>
