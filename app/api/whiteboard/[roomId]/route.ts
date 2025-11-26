@@ -35,13 +35,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ roomId:
 
     // Broadcast to room users
     try {
-      const payload = JSON.stringify({ elements });
-      // Pusher limit is 10KB (10240 bytes). We use 9KB as a safe limit.
-      if (Buffer.byteLength(payload) < 9000) {
-        await pusherServer.trigger(`whiteboard-${roomId}`, "update", { elements });
+      if (!process.env.PUSHER_APP_ID || !process.env.PUSHER_KEY || !process.env.PUSHER_SECRET || !process.env.PUSHER_CLUSTER) {
+        console.warn("Pusher environment variables missing. Skipping real-time broadcast.");
       } else {
-        // Payload too large, tell clients to fetch from server
-        await pusherServer.trigger(`whiteboard-${roomId}`, "update", { action: "refresh" });
+        const payload = JSON.stringify({ elements });
+        // Pusher limit is 10KB (10240 bytes). We use 9KB as a safe limit.
+        if (Buffer.byteLength(payload) < 9000) {
+          await pusherServer.trigger(`whiteboard-${roomId}`, "update", { elements });
+        } else {
+          // Payload too large, tell clients to fetch from server
+          await pusherServer.trigger(`whiteboard-${roomId}`, "update", { action: "refresh" });
+        }
       }
     } catch (pusherError) {
       console.error("Pusher trigger failed:", pusherError);

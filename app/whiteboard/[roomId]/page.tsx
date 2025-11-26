@@ -29,13 +29,19 @@ export default async function WhiteboardPage({ params }: { params: Promise<{ roo
     redirect("/dashboard");
   }
   
-  const board = await prisma.whiteboard.findUnique({
-    where: { roomId },
-  });
+  let initialElements = [];
+  try {
+    const board = await prisma.whiteboard.findUnique({
+      where: { roomId },
+    });
+    console.log(`[WhiteboardPage] Room: ${roomId}, Board found: ${!!board}, Data length: ${board?.data?.length}`);
+    initialElements = board?.data ? JSON.parse(board.data) : [];
+  } catch (error) {
+    console.error("[WhiteboardPage] Error fetching whiteboard data:", error);
+    // We don't crash the page, just start with empty board. 
+    // This handles cases where the DB might be temporarily unavailable or schema is mismatched.
+  }
 
-  console.log(`[WhiteboardPage] Room: ${roomId}, Board found: ${!!board}, Data length: ${board?.data?.length}`);
-
-  const initialElements = board?.data ? JSON.parse(board.data) : [];
   console.log(`[WhiteboardPage] Initial elements count: ${initialElements.length}`);
 
   return (

@@ -138,7 +138,7 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   });
 
   const debouncedSave = React.useMemo(
-    () => debounce((elements: any[]) => saveToDbRef.current(elements), 5000),
+    () => debounce((elements: any[]) => saveToDbRef.current(elements), 3000),
     []
   );
 
