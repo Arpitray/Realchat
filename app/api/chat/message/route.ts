@@ -3,20 +3,25 @@ import { pusherServer } from "@/lib/pusher";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
 import { NextResponse } from "next/server";
+import { encrypt } from "@/lib/encryption";
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id)
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { roomId, content } = await req.json();
 
-    // Ensure the room exists, or create it on the fly
+    // 🔐 Encrypt content before saving
+    const cipherText = content ? encrypt(content) : null;
+
     const message = await prisma.message.create({
       data: {
-        content,
+        // ⬇️ store ENCRYPTED text in DB
+        content: cipherText,
         room: {
           connectOrCreate: {
             where: { id: roomId },
@@ -42,9 +47,18 @@ export async function POST(req: Request) {
       },
     });
 
-    await pusherServer.trigger(`room-${roomId}`, "new-message", message);
+    // 👇 Build payload for clients:
+    //    same message, but with PLAINTEXT content
+    const payload = {
+      ...message,
+      content, // override encrypted content with original plain text
+    };
 
-    return NextResponse.json(message);
+    // 📡 Broadcast plaintext to clients
+    await pusherServer.trigger(`room-${roomId}`, "new-message", payload);
+
+    // 🔁 Return plaintext to caller too
+    return NextResponse.json(payload);
   } catch (error: any) {
     console.error("Error in /api/chat/message:", error);
     return NextResponse.json(

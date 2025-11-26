@@ -83,10 +83,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 40, rotateX: 20 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ delay: 0.6, duration: 0.8, type: "spring" }}
-            className="mt-20 relative mx-auto max-w-5xl perspective-1000"
+            className="mt-20 relative mx-auto max-w-5xl perspective-1000 dark"
           >
-            <div className="relative rounded-xl border border-white/10 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative rounded-xl border border-white/10 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video group dark">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 dark" />
 
               {/* Mock UI */}
               <div className="flex h-full">
