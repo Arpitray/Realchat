@@ -20,13 +20,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ roomId:
 
     console.log(`Saving whiteboard for room ${roomId}, elements count: ${elements?.length}`);
 
+    // Ensure roomId is a string
+    const roomIdStr = String(roomId);
+    const dataStr = JSON.stringify(elements);
+
     // Save in DB
     try {
-      await prisma.whiteboard.upsert({
-        where: { roomId },
-        create: { roomId, data: JSON.stringify(elements) },
-        update: { data: JSON.stringify(elements) },
+      // Try manual upsert to avoid potential validation issues with upsert() if schema is out of sync
+      const existingBoard = await prisma.whiteboard.findUnique({
+        where: { roomId: roomIdStr },
       });
+
+      if (existingBoard) {
+        await prisma.whiteboard.update({
+          where: { roomId: roomIdStr },
+          data: { data: dataStr },
+        });
+      } else {
+        await prisma.whiteboard.create({
+          data: {
+            roomId: roomIdStr,
+            data: dataStr,
+          },
+        });
+      }
       console.log("DB save successful");
     } catch (dbError) {
       console.error("Database save failed:", dbError);
