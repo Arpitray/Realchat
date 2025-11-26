@@ -44,6 +44,8 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
 
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 
+  const lastSavedData = useRef<string>(JSON.stringify(initialElements));
+
   // Handle incoming updates from Pusher
   useEffect(() => {
     const channel = pusherClient.subscribe(`whiteboard-${roomId}`);
@@ -51,11 +53,14 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
     channel.bind("update", (data: { elements: any[] }) => {
       if (excalidrawAPI) {
         // Only update if the elements are different to avoid loops/flicker
-        // This is a naive check, ideally we check version/ids
         const currentElements = excalidrawAPI.getSceneElements();
-        if (JSON.stringify(currentElements) !== JSON.stringify(data.elements)) {
+        const newElementsStr = JSON.stringify(data.elements);
+        
+        if (JSON.stringify(currentElements) !== newElementsStr) {
              isRemoteUpdate.current = true;
              excalidrawAPI.updateScene({ elements: data.elements });
+             // Update lastSavedData to prevent echoing back the remote update
+             lastSavedData.current = newElementsStr;
         }
       }
     });
@@ -66,6 +71,13 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   }, [roomId, excalidrawAPI]);
 
   const saveToDb = async (elements: any[]) => {
+    const currentData = JSON.stringify(elements);
+    
+    // Prevent saving if data hasn't changed
+    if (currentData === lastSavedData.current) {
+      return;
+    }
+
     setSaveStatus("saving");
     try {
       await fetch(`/api/whiteboard/${roomId}`, {
@@ -73,6 +85,7 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ elements }),
       });
+      lastSavedData.current = currentData;
       setSaveStatus("saved");
     } catch (error) {
       console.error("Failed to save whiteboard:", error);
@@ -80,9 +93,14 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
     }
   };
 
-  const debouncedSave = useCallback(
-    debounce((elements: any[]) => saveToDb(elements), 1000),
-    [roomId]
+  const saveToDbRef = useRef(saveToDb);
+  useEffect(() => {
+    saveToDbRef.current = saveToDb;
+  });
+
+  const debouncedSave = React.useMemo(
+    () => debounce((elements: any[]) => saveToDbRef.current(elements), 5000),
+    []
   );
 
   const onChange = (elements: readonly any[], appState: any, files: any) => {
