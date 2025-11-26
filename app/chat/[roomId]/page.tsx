@@ -29,11 +29,13 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const router = useRouter();
   const [currentUrl, setCurrentUrl] = useState("");
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
+    audioRef.current = new Audio("/notification.mp3");
   }, []);
 
 
@@ -75,6 +77,10 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
     const channel = pusherClient.subscribe(`room-${roomId}`);
 
     channel.bind("new-message", (msg: any) => {
+      if (msg.senderId !== session?.user?.id) {
+        audioRef.current?.play().catch((err) => console.error("Error playing sound:", err));
+      }
+
       setMessages((prev) => {
         // 1. Check if real ID exists (already handled)
         if (prev.find((m) => m.id === msg.id)) return prev;
@@ -108,7 +114,7 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
     return () => {
       pusherClient.unsubscribe(`room-${roomId}`);
     };
-  }, [roomId]);
+  }, [roomId, session]);
 
   // Auto-scroll to bottom
   useEffect(() => {
