@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     });
 
     return (
-        <div className="min-h-screen bg-background pt-24 px-4 md:px-8">
+        <div className="min-h-screen bg-background pt-32 px-4 md:px-8">
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <div>

@@ -333,7 +333,7 @@ export const ResizableNavbar = () => {
   ];
 
   return (
-    <Navbar className="fixed top-0 inset-x-0 z-50 pointer-events-none">
+    <Navbar className="fixed top-5 inset-x-0 z-50 pointer-events-none">
       <NavBody visible={true} className="pointer-events-auto">
         <div className="flex w-full items-center justify-between">
           <NavbarLogo />

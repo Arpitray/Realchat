@@ -26,8 +26,10 @@ export default function Home() {
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-[100px]" />
-          <div className="absolute top-40 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px]" />
+          <div className="absolute top-20 left-10 w-32 h-32 bg-[#fefae0]/40 rounded-full blur-[100px]" />
+          <div className="absolute top-40 right-10 w-96 h-96 bg-[#5f7e3a]/30 rounded-full blur-[100px]" />
+          <div className="absolute top-160 left-10 w-76 h-76 bg-[#e8e5da]/50 rounded-full blur-[100px]" />
+          <div className="absolute top-260 right-3 w-76 h-76 bg-[#e8e5da]/50 rounded-full blur-[100px]" />
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -85,13 +87,13 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8, type: "spring" }}
             className="mt-20 relative mx-auto max-w-5xl perspective-1000 dark"
           >
-            <div className="relative rounded-xl border border-white/10 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video group dark">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 dark" />
+            <div className="relative rounded-sm border border-white/10 bg-[#363636]/10 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 " />
 
               {/* Mock UI */}
               <div className="flex h-full">
                 {/* Sidebar Mock */}
-                <div className="w-64 border-r border-white/10 bg-card/30 p-4 hidden md:flex flex-col gap-4">
+                <div className="w-64 border-r border-white/10 bg-[#363636] p-4 hidden md:flex flex-col gap-4">
                   <div className="h-8 w-32 bg-white/10 rounded-md" />
                   <div className="space-y-2">
                     {[1, 2, 3].map((i) => (
@@ -100,19 +102,19 @@ export default function Home() {
                   </div>
                 </div>
                 {/* Main Area Mock */}
-                <div className="flex-1 p-6 flex flex-col gap-4 relative">
+                <div className="flex-1 p-6 flex flex-col bg-[#363636] gap-4 relative">
                   {/* Chat Bubbles */}
                   <div className="flex gap-3">
                     <div className="w-10 h-10 rounded-full bg-purple-500/20" />
                     <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none max-w-xs">
                       <div className="h-2 w-20 bg-white/20 rounded mb-2" />
-                      <div className="h-2 w-40 bg-white/10 rounded" />
+                      <div className="h-2 w-40 bg-white rounded" />
                     </div>
                   </div>
                   <div className="flex gap-3 flex-row-reverse">
-                    <div className="w-10 h-10 rounded-full bg-primary/20" />
-                    <div className="bg-primary p-3 rounded-2xl rounded-tr-none max-w-xs">
-                      <div className="h-2 w-32 bg-white/40 rounded" />
+                    <div className="w-10 h-10 rounded-full bg-white" />
+                    <div className="bg-white p-3 rounded-2xl rounded-tr-none max-w-xs">
+                      <div className="h-2 w-32 bg-white rounded" />
                     </div>
                   </div>
 

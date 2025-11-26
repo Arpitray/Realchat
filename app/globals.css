@@ -104,6 +104,6 @@
     @apply bg-card/50 backdrop-blur-md border border-border/50 shadow-xl;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-stone-400;
   }
 }
