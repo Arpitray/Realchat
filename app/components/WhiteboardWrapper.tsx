@@ -119,11 +119,16 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
 
     setSaveStatus("saving");
     try {
-      await fetch(`/api/whiteboard/${roomId}`, {
+      const res = await fetch(`/api/whiteboard/${roomId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ elements }),
       });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+
       lastSavedData.current = currentData;
       setSaveStatus("saved");
     } catch (error) {
