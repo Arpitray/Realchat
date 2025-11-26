@@ -13,18 +13,36 @@ export async function POST(req: Request, { params }: { params: Promise<{ roomId:
     const body = await req.json();
     const { elements } = body;
 
+    if (!elements) {
+      console.error("Missing elements in request body");
+      return NextResponse.json({ error: "Missing elements" }, { status: 400 });
+    }
+
     console.log(`Saving whiteboard for room ${roomId}, elements count: ${elements?.length}`);
 
     // Save in DB
-    await prisma.whiteboard.upsert({
-      where: { roomId },
-      create: { roomId, data: JSON.stringify(elements) },
-      update: { data: JSON.stringify(elements) },
-    });
+    try {
+      await prisma.whiteboard.upsert({
+        where: { roomId },
+        create: { roomId, data: JSON.stringify(elements) },
+        update: { data: JSON.stringify(elements) },
+      });
+      console.log("DB save successful");
+    } catch (dbError) {
+      console.error("Database save failed:", dbError);
+      return NextResponse.json({ error: "Database save failed", details: String(dbError) }, { status: 500 });
+    }
 
     // Broadcast to room users
     try {
-      await pusherServer.trigger(`whiteboard-${roomId}`, "update", { elements });
+      const payload = JSON.stringify({ elements });
+      // Pusher limit is 10KB (10240 bytes). We use 9KB as a safe limit.
+      if (Buffer.byteLength(payload) < 9000) {
+        await pusherServer.trigger(`whiteboard-${roomId}`, "update", { elements });
+      } else {
+        // Payload too large, tell clients to fetch from server
+        await pusherServer.trigger(`whiteboard-${roomId}`, "update", { action: "refresh" });
+      }
     } catch (pusherError) {
       console.error("Pusher trigger failed:", pusherError);
       // We don't fail the request if Pusher fails, as the data is saved.
@@ -33,7 +51,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ roomId:
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error saving whiteboard:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error", details: String(error) }, { status: 500 });
   }
 }
 

@@ -46,14 +46,22 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   // Force update scene when API is ready to ensure data is loaded
   useEffect(() => {
     if (excalidrawAPI && initialElements && initialElements.length > 0) {
-      // Check if the scene is empty before overwriting (though initialData should handle it)
+      // Always sync with initialElements on mount if they exist
+      // This fixes the issue where refreshing might show a blank canvas
       const currentElements = excalidrawAPI.getSceneElements();
-      if (currentElements.length === 0) {
-        console.log("Hydrating Excalidraw with initial elements");
-        excalidrawAPI.updateScene({ elements: initialElements });
+      // We check if the scene is effectively empty or if we just mounted
+      if (currentElements.length === 0 || mounted) {
+         // Use a small timeout to ensure Excalidraw is fully ready
+         setTimeout(() => {
+            if (JSON.stringify(excalidrawAPI.getSceneElements()) !== JSON.stringify(initialElements)) {
+               console.log("Hydrating Excalidraw with initial elements (forced)");
+               excalidrawAPI.updateScene({ elements: initialElements });
+               lastSavedData.current = JSON.stringify(initialElements);
+            }
+         }, 100);
       }
     }
-  }, [excalidrawAPI, initialElements]);
+  }, [excalidrawAPI, initialElements, mounted]);
 
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 
@@ -63,15 +71,33 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   useEffect(() => {
     const channel = pusherClient.subscribe(`whiteboard-${roomId}`);
 
-    channel.bind("update", (data: { elements: any[] }) => {
-      if (excalidrawAPI) {
+    channel.bind("update", async (data: { elements?: any[], action?: string }) => {
+      if (!excalidrawAPI) return;
+
+      let newElements = data.elements;
+
+      // If the server tells us to refresh (payload too large), fetch from API
+      if (data.action === "refresh") {
+        try {
+          const res = await fetch(`/api/whiteboard/${roomId}`);
+          const json = await res.json();
+          if (json.elements) {
+            newElements = json.elements;
+          }
+        } catch (err) {
+          console.error("Failed to fetch whiteboard update:", err);
+          return;
+        }
+      }
+
+      if (newElements) {
         // Only update if the elements are different to avoid loops/flicker
         const currentElements = excalidrawAPI.getSceneElements();
-        const newElementsStr = JSON.stringify(data.elements);
+        const newElementsStr = JSON.stringify(newElements);
         
         if (JSON.stringify(currentElements) !== newElementsStr) {
              isRemoteUpdate.current = true;
-             excalidrawAPI.updateScene({ elements: data.elements });
+             excalidrawAPI.updateScene({ elements: newElements });
              // Update lastSavedData to prevent echoing back the remote update
              lastSavedData.current = newElementsStr;
         }
