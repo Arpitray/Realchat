@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { roomId, content } = await req.json();
+    const { roomId, content, tempId } = await req.json();
 
     // 🔐 Encrypt content before saving
     const cipherText = content ? encrypt(content) : null;
@@ -52,7 +52,9 @@ export async function POST(req: Request) {
     const payload = {
       ...message,
       content, // override encrypted content with original plain text
+      tempId, // Pass back the tempId for optimistic updates
     };
+
 
     // 📡 Broadcast plaintext to clients
     await pusherServer.trigger(`room-${roomId}`, "new-message", payload);

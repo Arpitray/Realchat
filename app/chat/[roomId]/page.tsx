@@ -76,11 +76,30 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
 
     channel.bind("new-message", (msg: any) => {
       setMessages((prev) => {
-        // Avoid duplicates if the message we just sent comes back via Pusher
+        // 1. Check if real ID exists (already handled)
         if (prev.find((m) => m.id === msg.id)) return prev;
+
+        // 2. If this is "my" message coming back, replace the temp one.
+        // We use the tempId passed back from the server to find the exact optimistic message
+        if (msg.tempId) {
+           const tempMatchIndex = prev.findIndex(m => m.id === msg.tempId);
+           if (tempMatchIndex !== -1) {
+             const newMessages = [...prev];
+             newMessages[tempMatchIndex] = msg; // Replace temp with real
+             return newMessages;
+           }
+        }
+
         return [...prev, msg];
       });
     });
+
+
+
+
+
+
+
 
     channel.bind("message-deleted", ({ id }: { id: string }) => {
       setMessages((prev) => prev.filter((m) => m.id !== id));
@@ -102,14 +121,49 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
     e?.preventDefault();
     if (!input.trim()) return;
 
-    await fetch("/api/chat/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, content: input }),
-    });
+    const tempId = `temp-${Date.now()}`;
+    const content = input;
+    
+    // Optimistic update
+    const optimisticMessage = {
+      id: tempId,
+      tempId, // Store tempId in the message object
+      content,
+      roomId,
+      senderId: session?.user?.id,
+      createdAt: new Date().toISOString(),
+      sender: {
+        id: session?.user?.id,
+        name: session?.user?.name,
+        image: session?.user?.image,
+        email: session?.user?.email,
+      },
+    };
 
+
+    setMessages((prev) => [...prev, optimisticMessage]);
     setInput("");
+
+    try {
+      const res = await fetch("/api/chat/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, content, tempId }),
+      });
+
+      if (!res.ok) {
+
+        // Revert on failure
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        console.error("Failed to send message");
+      }
+    } catch (error) {
+      // Revert on error
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      console.error("Error sending message:", error);
+    }
   }
+
 
   const deleteMessage = async (messageId: string) => {
     if (!confirm("Delete this message?")) return;
@@ -122,8 +176,6 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
         method: "DELETE",
       });
       if (!res.ok) {
-        // Revert if failed (optional, but good practice)
-        // For simplicity, we'll just fetch messages again or show error
         console.error("Failed to delete message");
       }
     } catch (error) {
@@ -174,34 +226,7 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
 
       <div className="flex-1 flex overflow-hidden relative">
         {/* Sidebar (Hidden on mobile for now, or collapsible) */}
-        <div className="w-20 lg:w-80 border-r border-white/10 bg-card/30 hidden md:flex flex-col shrink-0">
-          <div className="p-4 border-b border-white/10 flex items-center justify-between">
-            <h2 className="font-bold text-lg hidden lg:block">Channels</h2>
-            <button className="p-2 hover:bg-white/5 rounded-full transition-colors">
-              <MoreVertical className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {/* Mock Channels */}
-            {['General', 'Design', 'Engineering', 'Random'].map((channel) => (
-              <button
-                key={channel}
-                className={cn(
-                  "w-full p-3 rounded-xl flex items-center gap-3 transition-all",
-                  channel === 'General' ? "bg-primary/10 text-primary" : "hover:bg-white/5 text-muted-foreground"
-                )}
-              >
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                  <span className="text-lg">#</span>
-                </div>
-                <div className="hidden lg:block text-left">
-                  <div className="font-medium">{channel}</div>
-                  <div className="text-xs opacity-60">24 active</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0 bg-background/50 backdrop-blur-sm w-full">
@@ -324,7 +349,7 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
                       const isMe = msg.sender?.id === session?.user?.id;
                       return (
                         <motion.div
-                          key={msg.id || i}
+                          key={msg.tempId || msg.id || i}
                           initial={{ opacity: 0, y: 20, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           className={cn(
