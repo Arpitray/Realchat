@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { pusherClient } from "@/lib/pusher-client";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Paperclip, MoreVertical, Phone, Video, Users, PenTool, MessageSquare, Share2, Copy, Check, Trash2, } from "lucide-react";
+import { Send, Paperclip, MoreVertical, Phone, Video, Users, PenTool, MessageSquare, Share2, Copy, Check, Trash2, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Modal } from "@/app/components/modal";
 import {
@@ -29,6 +29,7 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
   const [isDeleting, setIsDeleting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   const [currentUrl, setCurrentUrl] = useState("");
 
@@ -36,6 +37,14 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
     setCurrentUrl(window.location.href);
     audioRef.current = new Audio("/notification.mp3");
   }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [input]);
 
 
 
@@ -226,8 +235,8 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
-      {/* Navbar Spacer */}
-      <div className="h-16 md:h-20 shrink-0" />
+      {/* Navbar Spacer - Removed since we hid the global navbar */}
+      {/* <div className="h-16 md:h-20 shrink-0" /> */}
 
       <div className="flex-1 flex overflow-hidden relative">
         {/* Sidebar (Hidden on mobile for now, or collapsible) */}
@@ -238,7 +247,10 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
           {/* Header */}
           <header className="h-16 border-b border-white/10 bg-card/30 backdrop-blur-md flex items-center justify-between px-4 md:px-6 shrink-0 z-10">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-sm md:text-base">
+              <button onClick={() => router.push("/dashboard")} className="md:hidden p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">
                 {(roomName || roomId).slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -363,16 +375,18 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
                           )}
                           
                         <div className={cn(
-                          "p-3 md:p-4 rounded-2xl shadow-sm backdrop-blur-sm relative group/message",
+                          "p-2 px-3 md:p-3 rounded-2xl shadow-sm backdrop-blur-sm relative group/message min-w-[80px]",
                           isMe
                             ? "bg-primary text-primary-foreground rounded-tr-none"
                             : "bg-card/50 border border-white/10 rounded-tl-none"
                         )}>
                           {!isMe && <p className="text-xs font-bold mb-1 opacity-70">{msg.sender?.name || "Unknown"}</p>}
-                          <p className="leading-relaxed text-sm md:text-base wrap-break-word">{msg.content}</p>
-                          <span className="text-[10px] opacity-50 mt-1 block">
-                            {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                          <p className="leading-snug text-sm md:text-base break-words whitespace-pre-wrap">{msg.content}</p>
+                          <div className="flex justify-end mt-1 select-none">
+                            <span className="text-[10px] opacity-70">
+                              {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
                           
                           {isMe && (
                             <DropdownMenu>
@@ -409,22 +423,30 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
                   >
                     <button
                       type="button"
-                      className="p-3 hover:bg-white/10 rounded-full text-muted-foreground transition-colors"
+                      className="p-3 hover:bg-white/10 rounded-full text-muted-foreground transition-colors self-end mb-1"
                     >
                       <Paperclip className="w-5 h-5" />
                     </button>
 
-                    <input
+                    <textarea
+                      ref={textareaRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage(e);
+                        }
+                      }}
                       placeholder="Type a message..."
-                      className="flex-1 bg-transparent border-none focus:ring-0 py-3 px-2 text-foreground placeholder:text-muted-foreground/50 resize-none min-w-0"
+                      rows={1}
+                      className="flex-1 bg-transparent border-none focus:ring-0 py-3 px-2 text-foreground placeholder:text-muted-foreground/50 resize-none min-w-0 max-h-32 overflow-y-auto scrollbar-hide"
                     />
 
                     <button
                       type="submit"
                       disabled={!input.trim()}
-                      className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
+                      className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 self-end mb-1"
                     >
                       <Send className="w-5 h-5" />
                     </button>

@@ -159,17 +159,20 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
 
   return (
     <div className="h-full w-full relative ">
-      <div className="absolute top-4 left-4 z-50">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 z-40">
         <button 
           onClick={() => router.push(`/chat/${roomId}`)}
-          className="bg-zinc-900/50 backdrop-blur-md  mt-12 text-zinc-100 px-4 py-2 rounded-full shadow-lg hover:bg-zinc-800/50 transition-all flex items-center gap-2 text-sm font-medium border border-white/10 group"
+          className="bg-zinc-900/50 backdrop-blur-md text-zinc-100 p-2 md:px-4 md:py-2 rounded-full shadow-lg hover:bg-zinc-800/50 transition-all flex items-center gap-2 text-sm font-medium border border-white/10 group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Chat
+          <span className="hidden md:inline">Back to Chat</span>
         </button>
       </div>
-      <div className="absolute top-4 right-4 z-50 flex items-center gap-4">
-        <div className="bg-zinc-900/50 mt-11 backdrop-blur-md rounded-full border border-white/10 shadow-lg px-3 py-1.5">
+
+      {/* Status & Theme */}
+      <div className="absolute top-4 right-4 z-40 flex items-center gap-2 md:gap-4">
+        <div className="bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/10 shadow-lg px-3 py-1.5">
           <span className={`text-xs font-medium ${
             saveStatus === "saving" ? "text-yellow-500" : 
             saveStatus === "error" ? "text-red-500" : 
@@ -180,10 +183,11 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
              "Saved"}
           </span>
         </div>
-        <div className="bg-zinc-900/50 mt-11 mr-6 backdrop-blur-md rounded-full border border-white/10 shadow-lg">
+        <div className="bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/10 shadow-lg">
           <ThemeToggle />
         </div>
       </div>
+
       {mounted && (
         <Excalidraw
           initialData={{ elements: initialElements, appState: { currentItemFontFamily: 1 } }}

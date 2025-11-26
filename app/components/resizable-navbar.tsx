@@ -329,7 +329,7 @@ export const ResizableNavbar = () => {
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = React.useState(false);
 
-  if (pathname?.startsWith("/whiteboard")) {
+  if (pathname?.startsWith("/whiteboard") || pathname?.startsWith("/chat")) {
     return null;
   }
 
