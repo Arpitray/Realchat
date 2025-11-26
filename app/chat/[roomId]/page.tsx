@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { pusherClient } from "@/lib/pusher-client";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Paperclip, MoreVertical, Phone, Video, Users, PenTool, MessageSquare, Share2, Copy, Check, Trash2, LogOut } from "lucide-react";
+import { Send, Paperclip, MoreVertical, Phone, Video, Users, PenTool, MessageSquare, Share2, Copy, Check, Trash2, } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Modal } from "@/app/components/modal";
 import {
@@ -23,7 +23,6 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [roomName, setRoomName] = useState("");
-  const [isWhiteboardMode, setIsWhiteboardMode] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -261,20 +260,19 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
             </button>
               <div className="bg-white/5 rounded-full p-1 flex border border-white/10">
                 <button
-                  onClick={() => setIsWhiteboardMode(false)}
                   className={cn(
                     "px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all flex items-center gap-2",
-                    !isWhiteboardMode ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
+                    "bg-primary text-white shadow-lg"
                   )}
                 >
                   <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
                   <span className="hidden sm:inline">Chat</span>
                 </button>
                 <button
-                  onClick={() => setIsWhiteboardMode(true)}
+                  onClick={() => router.push(`/whiteboard/${roomId}`)}
                   className={cn(
                     "px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all flex items-center gap-2",
-                    isWhiteboardMode ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
+                    "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <PenTool className="w-3 h-3 md:w-4 md:h-4" />
@@ -326,17 +324,6 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
 
           {/* Content Area */}
           <div className="flex-1 relative overflow-hidden flex flex-col">
-            {isWhiteboardMode ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-grid-white/[0.02]">
-                <div className="text-center space-y-4">
-                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto animate-bounce">
-                    <PenTool className="w-10 h-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-bold text-muted-foreground">Whiteboard Coming Soon</h3>
-                  <p className="text-sm text-muted-foreground/60">Infinite canvas implementation in progress...</p>
-                </div>
-              </div>
-            ) : (
               <>
                 {/* Messages */}
                 <div
@@ -444,7 +431,6 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
                   </form>
                 </div>
               </>
-            )}
           </div>
         </div>
       </div>

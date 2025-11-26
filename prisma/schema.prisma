@@ -118,6 +118,7 @@ model Message {
 model Whiteboard {
   id         String               @id @default(cuid())
   roomId     String               @unique
+  data       String?              // JSON string of elements
   elements   WhiteboardElement[]
   versions   WhiteboardVersion[]
   createdAt  DateTime             @default(now())

@@ -1,0 +1,73 @@
+/* Custom Excalidraw Theme Overrides */
+
+.excalidraw.theme--dark {
+  --color-primary: #fafafa;
+  --color-secondary: #a1a1aa;
+  --color-surface-primary: #9494a0; /* zinc-900 */
+  --color-surface-secondary: #707074; /* zinc-800 */
+  --color-surface-tertiary: #3f3f46; /* zinc-700 */
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-border-primary: #3f3f46;
+}
+
+/* Glassmorphism for Toolbar */
+.excalidraw.theme--dark .App-toolbar-content {
+  background-color: rgba(24, 24, 27, 0.6) !important; /* zinc-900 with opacity */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.excalidraw.theme--dark .App-toolbar .ToolIcon__icon {
+  color: #a1a1aa; /* zinc-400 */
+}
+
+.excalidraw.theme--dark .App-toolbar .ToolIcon__icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fafafa;
+}
+
+.excalidraw.theme--dark .App-toolbar .ToolIcon[aria-label="Active tool"] .ToolIcon__icon {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fafafa;
+}
+
+/* Sidebar / Library */
+.excalidraw.theme--dark .layer-ui__wrapper .sidebar {
+  background-color: rgba(24, 24, 27, 0.8) !important;
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Footer / Zoom Controls */
+.excalidraw.theme--dark .footer-center {
+  background-color: transparent !important;
+}
+
+.excalidraw.theme--dark .zoom-actions {
+  background-color: rgba(24, 24, 27, 0.6) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fafafa;
+}
+
+/* Hide the "Help" button if desired, or style it */
+.excalidraw.theme--dark .layer-ui__wrapper .footer-right {
+  display: none; /* Optional: hide help/shortcuts if cluttering */
+}
+
+/* Menu Button */
+.excalidraw.theme--dark .App-menu_top__left {
+  background-color: rgba(24, 24, 27, 0.6) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+/* Canvas Background - Ensure it matches app background if needed */
+.excalidraw.theme--dark .excalidraw-container {
+  background-color: #09090b !important; /* zinc-950 */
+}

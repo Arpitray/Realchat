@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import React, { useRef, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { usePathname } from "next/navigation";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -325,7 +326,12 @@ export const MobileAuthSection = ({ className, onItemClick }: { className?: stri
 };
 
 export const ResizableNavbar = () => {
+  const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = React.useState(false);
+
+  if (pathname?.startsWith("/whiteboard")) {
+    return null;
+  }
 
   const navItems = [
     { name: "Features", link: "/#features" },
