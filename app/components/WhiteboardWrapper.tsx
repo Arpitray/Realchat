@@ -40,7 +40,20 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    console.log("WhiteboardWrapper mounted, initialElements:", initialElements?.length);
+  }, [initialElements]);
+
+  // Force update scene when API is ready to ensure data is loaded
+  useEffect(() => {
+    if (excalidrawAPI && initialElements && initialElements.length > 0) {
+      // Check if the scene is empty before overwriting (though initialData should handle it)
+      const currentElements = excalidrawAPI.getSceneElements();
+      if (currentElements.length === 0) {
+        console.log("Hydrating Excalidraw with initial elements");
+        excalidrawAPI.updateScene({ elements: initialElements });
+      }
+    }
+  }, [excalidrawAPI, initialElements]);
 
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 

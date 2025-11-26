@@ -33,7 +33,10 @@ export default async function WhiteboardPage({ params }: { params: Promise<{ roo
     where: { roomId },
   });
 
+  console.log(`[WhiteboardPage] Room: ${roomId}, Board found: ${!!board}, Data length: ${board?.data?.length}`);
+
   const initialElements = board?.data ? JSON.parse(board.data) : [];
+  console.log(`[WhiteboardPage] Initial elements count: ${initialElements.length}`);
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-background">
