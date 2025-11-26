@@ -82,6 +82,10 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
       });
     });
 
+    channel.bind("message-deleted", ({ id }: { id: string }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+    });
+
     return () => {
       pusherClient.unsubscribe(`room-${roomId}`);
     };
@@ -106,6 +110,27 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
 
     setInput("");
   }
+
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm("Delete this message?")) return;
+    
+    // Optimistic update
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+
+    try {
+      const res = await fetch(`/api/chat/message/${messageId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        // Revert if failed (optional, but good practice)
+        // For simplicity, we'll just fetch messages again or show error
+        console.error("Failed to delete message");
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  };
+
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -319,18 +344,39 @@ export default function ChatPage({ params }: { params: Promise<{ roomId: string 
                             </div>
                           )}
                           
-                          <div className={cn(
-                            "p-3 md:p-4 rounded-2xl shadow-sm backdrop-blur-sm",
-                            isMe
-                              ? "bg-primary text-primary-foreground rounded-tr-none"
-                              : "bg-card/50 border border-white/10 rounded-tl-none"
-                          )}>
-                            {!isMe && <p className="text-xs font-bold mb-1 opacity-70">{msg.sender?.name || "Unknown"}</p>}
-                            <p className="leading-relaxed text-sm md:text-base wrap-break-word">{msg.content}</p>
-                            <span className="text-[10px] opacity-50 mt-1 block">
-                              {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
+                        <div className={cn(
+                          "p-3 md:p-4 rounded-2xl shadow-sm backdrop-blur-sm relative group/message",
+                          isMe
+                            ? "bg-primary text-primary-foreground rounded-tr-none"
+                            : "bg-card/50 border border-white/10 rounded-tl-none"
+                        )}>
+                          {!isMe && <p className="text-xs font-bold mb-1 opacity-70">{msg.sender?.name || "Unknown"}</p>}
+                          <p className="leading-relaxed text-sm md:text-base wrap-break-word">{msg.content}</p>
+                          <span className="text-[10px] opacity-50 mt-1 block">
+                            {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          
+                          {isMe && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="absolute -top-2 -left-2 p-1 rounded-full bg-background border border-white/10 shadow-sm opacity-100 md:opacity-0 md:group-hover/message:opacity-100 transition-opacity">
+                                  <MoreVertical className="w-3 h-3 text-muted-foreground" />
+                                </button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="start" className="w-32">
+                                <DropdownMenuItem 
+                                  onClick={() => deleteMessage(msg.id)}
+                                  className="text-red-500 focus:text-red-500 focus:bg-red-500/10 cursor-pointer text-xs"
+                                >
+                                  <Trash2 className="w-3 h-3 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+
                         </motion.div>
                       );
                     })}
