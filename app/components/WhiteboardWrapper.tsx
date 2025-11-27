@@ -158,22 +158,21 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
   };
 
   return (
-    <div className="h-full w-full relative ">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 z-40">
+    <div className="h-full w-full relative flex flex-col">
+      {/* Top Header Bar */}
+      <div className="h-14 bg-zinc-900/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 shrink-0 z-10">
+        {/* Left: Back Button */}
         <button 
           onClick={() => router.push(`/chat/${roomId}`)}
-          className="bg-zinc-900/50 backdrop-blur-md text-zinc-100 p-2 md:px-4 md:py-2 rounded-full shadow-lg hover:bg-zinc-800/50 transition-all flex items-center gap-2 text-sm font-medium border border-white/10 group"
+          className="text-zinc-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="hidden md:inline">Back to Chat</span>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Back to Chat</span>
         </button>
-      </div>
 
-      {/* Status & Theme */}
-      <div className="absolute top-4 right-4 z-40 flex items-center gap-2 md:gap-4">
-        <div className="bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/10 shadow-lg px-3 py-1.5">
-          <span className={`text-xs font-medium ${
+        {/* Center: Status */}
+        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none">
+          <span className={`text-xs font-medium px-3 py-1 rounded-full bg-black/20 border border-white/5 ${
             saveStatus === "saving" ? "text-yellow-500" : 
             saveStatus === "error" ? "text-red-500" : 
             "text-green-500"
@@ -183,24 +182,29 @@ export default function WhiteboardWrapper({ roomId, initialElements }: { roomId:
              "Saved"}
           </span>
         </div>
-        <div className="bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/10 shadow-lg">
+
+        {/* Right: Theme Toggle */}
+        <div>
           <ThemeToggle />
         </div>
       </div>
 
-      {mounted && (
-        <Excalidraw
-          initialData={{ elements: initialElements, appState: { currentItemFontFamily: 1 } }}
-          excalidrawAPI={(api) => setExcalidrawAPI(api)}
-          onChange={onChange}
-          theme={resolvedTheme === "dark" ? "dark" : "light"}
-          UIOptions={{
-            canvasActions: {
-              changeViewBackgroundColor: false,
-            }
-          }}
-        />
-      )}
+      {/* Canvas Area */}
+      <div className="flex-1 relative">
+        {mounted && (
+          <Excalidraw
+            initialData={{ elements: initialElements, appState: { currentItemFontFamily: 1 } }}
+            excalidrawAPI={(api) => setExcalidrawAPI(api)}
+            onChange={onChange}
+            theme={resolvedTheme === "dark" ? "dark" : "light"}
+            UIOptions={{
+              canvasActions: {
+                changeViewBackgroundColor: false,
+              }
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
