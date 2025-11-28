@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
+import CardCarousal from "./components/CardCarousal";
 import { ArrowRight, MessageSquare, PenTool, Share2, Zap } from "lucide-react";
 
 const container = {
@@ -81,51 +82,7 @@ export default function Home() {
           </motion.div>
 
           {/* Hero Image / Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 40, rotateX: 20 }}
-            animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={{ delay: 0.6, duration: 0.8, type: "spring" }}
-            className="mt-20 relative mx-auto max-w-5xl perspective-1000 dark"
-          >
-            <div className="relative rounded-sm border border-white/10 bg-[#363636]/10 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 " />
-
-              {/* Mock UI */}
-              <div className="flex h-full">
-                {/* Sidebar Mock */}
-                <div className="w-64 border-r border-white/10 bg-[#363636] p-4 hidden md:flex flex-col gap-4">
-                  <div className="h-8 w-32 bg-white/10 rounded-md" />
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-10 w-full bg-white/5 rounded-md" />
-                    ))}
-                  </div>
-                </div>
-                {/* Main Area Mock */}
-                <div className="flex-1 p-6 flex flex-col bg-[#363636] gap-4 relative">
-                  {/* Chat Bubbles */}
-                  <div className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/20" />
-                    <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none max-w-xs">
-                      <div className="h-2 w-20 bg-white/20 rounded mb-2" />
-                      <div className="h-2 w-40 bg-white rounded" />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 flex-row-reverse">
-                    <div className="w-10 h-10 rounded-full bg-white" />
-                    <div className="bg-white p-3 rounded-2xl rounded-tr-none max-w-xs">
-                      <div className="h-2 w-32 bg-white rounded" />
-                    </div>
-                  </div>
-
-                  {/* Floating Elements (Whiteboard) */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-40 border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-muted-foreground text-sm">Infinite Canvas</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+         <CardCarousal />
         </div>
       </section>
 
