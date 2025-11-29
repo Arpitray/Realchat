@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bando | Real-time Collaboration",
+  title: "Bando",
   description: "Chat, Draw, Collaborate in real-time.",
 };
 
