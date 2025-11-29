@@ -7,7 +7,7 @@ export default function CardCarousal() {
         "Simply click “Create New Room” and enter a name for your discussion or project A dedicated realtime space is created instantly no setup, no waiting",
       name: "Step 1: Create a Room",
       designation: "",
-      src: "https://res.cloudinary.com/dsjjdnife/image/upload/v1764367005/ChatGPT_Image_Nov_29_2025_03_26_12_AM_accztf.png",
+      src: "https://res.cloudinary.com/dsjjdnife/image/upload/v1764365675/mock1_zod658.jpg",
     },
     {
       quote:
