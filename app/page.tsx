@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import CardCarousal from "./components/CardCarousal";
-import { ArrowRight, MessageSquare, PenTool, Share2, Zap } from "lucide-react";
+import { ArrowRight, MessageSquare, PenTool, Zap } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },

@@ -335,7 +335,7 @@ export const ResizableNavbar = () => {
 
   const navItems = [
     { name: "Features", link: "/#features" },
-    { name: "About", link: "/#about" },
+    { name: "Dashboard", link: "/dashboard" },
   ];
 
   return (
