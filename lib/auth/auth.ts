@@ -51,7 +51,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
-
+    
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
@@ -62,17 +62,20 @@ export const authOptions: AuthOptions = {
         return false
       }
     },
-    async session({ session, token }: any) {
-      if (token?.sub) {
-        session.user.id = token.sub
-      }
-      return session
-    },
+   
+  
     async jwt({ token, user, account }) {
       if (user) {
         token.sub = user.id
       }
       return token
+    },
+
+    async session({ session, token }) {
+      if (token?.sub) {
+        session.user.id = token.sub
+      }
+      return session
     }
   }
 }

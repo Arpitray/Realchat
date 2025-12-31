@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bando
 
-## Getting Started
+Bando is a modern, real-time collaboration platform designed to streamline communication and creativity. It combines persistent chat rooms with interactive whiteboards, allowing teams to brainstorm, discuss, and visualize ideas seamlessly in one place.
 
-First, run the development server:
+**Live Demo:** [bando.arpitray.me](https://bando.arpitray.me)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Real-time Messaging**: Create and join chat rooms for instant communication with your team.
+- **Collaborative Whiteboard**: Integrated Excalidraw whiteboards for real-time drawing, diagramming, and brainstorming within each room.
+- **Secure Authentication**: Robust user authentication system powered by NextAuth.js.
+- **Modern Interface**: A clean, responsive UI built with Tailwind CSS and enhanced with smooth Framer Motion animations.
+- **Real-time Updates**: Instant synchronization of messages and whiteboard states using Pusher.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
+- **Authentication**: [NextAuth.js](https://next-auth.js.org/)
+- **Real-time Engine**: [Pusher](https://pusher.com/)
+- **Whiteboard Engine**: [Excalidraw](https://excalidraw.com/)
 
-## Learn More
+## ⚡ Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+Follow these steps to set up the project locally.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Node.js (v18 or higher)
+- PostgreSQL database
+- Pusher account
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/bando.git
+   cd bando
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env` file in the root directory and configure the following variables:
+
+   ```env
+   # Database
+   DATABASE_URL="postgresql://..."
+
+   # NextAuth
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="your-secret-key"
+
+   # Pusher
+   PUSHER_APP_ID="your-app-id"
+   PUSHER_KEY="your-key"
+   PUSHER_SECRET="your-secret"
+   PUSHER_CLUSTER="your-cluster"
+   NEXT_PUBLIC_PUSHER_KEY="your-key"
+   NEXT_PUBLIC_PUSHER_CLUSTER="your-cluster"
+   ```
+
+4. **Database Setup**
+   Run the Prisma migrations to set up your database schema.
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Run the application**
+   Start the development server.
+   ```bash
+   npm run dev
+   ```
+
+   The application will be available at `http://localhost:3000`.
+
+## 📄 License
+
+This project is licensed under the MIT License.
